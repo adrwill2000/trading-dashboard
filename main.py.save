@@ -1,0 +1,149 @@
+import time
+import json
+import requests
+import subprocess
+from fastapi import FastAPI
+
+# Solana & API Configs
+SOLANA_RPC_URL = "https://api.mainnet-beta.solana.com"
+JUPITER_API_URL = "https://quote-api.jup.ag/v4/quote"
+
+# FastAPI Web Server
+app = FastAPI()
+
+@app.get("/bump")
+def bump_pump_fun(target_address: str, amount: float):
+    """ Sends a bump transaction to Pump.fun using Solana CLI wallet """
+    try:
+        amount_lamports = int(amount * 1_000_000_000)
+        command = [
+            "solana", "transfer", target_address, str(amount_lamports), "--from", "~/.config/solana/id.json", "--allow-unfunded-recipient", "--url", SOLANA_RPC_URL
+        ]
+        result = subprocess.run(command, capture_output=True, text=True, check=True)
+        return {"status": "success", "output": result.stdout.strip()}
+    except subprocess.CalledProcessError as e:
+        return {"status": "error", "message": e.stderr.strip()}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+@app.get("/trade")
+def trade_jupiter(input_mint: str, output_mint: str, amount: float):
+    """ Executes a swap via Jupiter API """
+    try:
+        params = {
+            "inputMint": input_mint,
+            "outputMint": output_mint,
+            "amount": int(amount * 1_000_000_000),
+            "slippageBps": 50,
+        }
+        response = requests.get(JUPITER_API_URL, params=params)
+        response.raise_for_status()
+        return response.json()
+    except requests.RequestException as e:
+        return {"status": "error", "message": str(e)}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)import time
+import random
+import json
+import requests
+import subprocess
+from solana.rpc.api import Client
+from solders.transaction import Transaction
+from solders.pubkey import Pubkey
+from solana.system_program import transfer, TransferParams
+from fastapi import FastAPI
+
+# Solana & API Configs
+SOLANA_RPC_URL = "https://api.mainnet-beta.solana.com"
+JUPITER_API_URL = "https://quote-api.jup.ag/v4/quote"
+client = Client(SOLANA_RPC_URL)
+
+# FastAPI Web Server
+app = FastAPI()
+
+@app.get("/bump")
+def bump_pump_fun(target_address: str, amount: float):
+    """ Sends a bump transaction to Pump.fun using Solana CLI wallet """
+    try:
+        amount_lamports = int(amount * 1_000_000_000)
+        command = [
+            "solana", "transfer", target_address, str(amount_lamports), "--from", "~/.config/solana/id.json", "--allow-unfunded-recipient", "--url", SOLANA_RPC_URL
+        ]
+        result = subprocess.run(command, capture_output=True, text=True)
+        return {"status": "success", "output": result.stdout}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+@app.get("/trade")
+def trade_jupiter(input_mint: str, output_mint: str, amount: float):
+    """ Executes a swap via Jupiter API """
+    try:
+        params = {
+            "inputMint": input_mint,
+            "outputMint": output_mint,
+            "amount": int(amount * 1_000_000_000),
+            "slippage": 0.5,
+        }
+        response = requests.get(JUPITER_API_URL, params=params).json()
+        return response
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+import time
+import random
+import json
+import requests
+import subprocess
+from solana.rpc.api import Client
+from solders.transaction import Transaction
+from solana.publickey import PublicKey
+from solana.system_program import transfer, TransferParams
+from fastapi import FastAPI
+
+# Solana & API Configs
+SOLANA_RPC_URL = "https://api.mainnet-beta.solana.com"
+JUPITER_API_URL = "https://quote-api.jup.ag/v4/quote"
+client = Client(SOLANA_RPC_URL)
+
+# FastAPI Web Server
+app = FastAPI()
+
+@app.get("/bump")
+def bump_pump_fun(target_address: str, amount: float):
+    """ Sends a bump transaction to Pump.fun using Solana CLI wallet """
+    try:
+        amount_lamports = int(amount * 1_000_000_000)
+        command = [
+            "solana", "transfer", target_address, str(amount_lamports), "--from", "~/.config/solana/id.json", "--allow-unfunded-recipient", "--url", SOLANA_RPC_URL
+        ]
+        result = subprocess.run(command, capture_output=True, text=True)
+        return {"status": "success", "output": result.stdout}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+@app.get("/trade")
+def trade_jupiter(input_mint: str, output_mint: str, amount: float):
+    """ Executes a swap via Jupiter API """
+    try:
+        params = {
+            "inputMint": input_mint,
+            "outputMint": output_mint,
+            "amount": int(amount * 1_000_000_000),
+            "slippage": 0.5,
+        }
+        response = requests.get(JUPITER_API_URL, params=params).json()
+        return response
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+
